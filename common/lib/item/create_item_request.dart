@@ -1,38 +1,40 @@
-enum _Json {
-  label,
-  price,
-  quantity,
-  roomCode,
-}
-
 class CreateItemRequest {
-  final String label;
-  final double price;
-  final int quantity;
-  final String roomCode;
-
   const CreateItemRequest({
-    required this.label,
+    required this.name,
     required this.price,
     required this.quantity,
     required this.roomCode,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      _Json.label.name: label,
-      _Json.price.name: price,
-      _Json.quantity.name: quantity,
-      _Json.roomCode.name: roomCode,
-    };
-  }
+  factory CreateItemRequest._fromMap(Map<String, dynamic> map) =>
+      CreateItemRequest(
+        name: map['name'] as String,
+        price: map['price'] as double,
+        quantity: map['quantity'] as int,
+        roomCode: map['roomCode'] as String,
+      );
 
-  factory CreateItemRequest.fromMap(Map<String, dynamic> map) {
-    return CreateItemRequest(
-      label: map[_Json.label.name] as String,
-      price: map[_Json.price.name] as double,
-      quantity: map[_Json.quantity.name] as int,
-      roomCode: map[_Json.roomCode.name] as String,
-    );
-  }
+  final String name;
+  final double price;
+  final int quantity;
+  final String roomCode;
+
+  Map<String, dynamic> toMap() => {
+        'name': name,
+        'price': price,
+        'quantity': quantity,
+        'roomCode': roomCode,
+      };
+
+  static CreateItemRequest? validatedFromMap(Map<String, dynamic> map) =>
+      switch (map) {
+        {
+          'name': final String _,
+          'price': final double _,
+          'quantity': final int _,
+          'roomCode': final String _
+        } =>
+          CreateItemRequest._fromMap(map),
+        _ => null,
+      };
 }

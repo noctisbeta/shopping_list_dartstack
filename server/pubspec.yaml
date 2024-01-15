@@ -6,10 +6,14 @@ publish_to: none
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
+assets:
+  - .env
+
 dependencies:
   common:
     path: ../common
   dart_frog: ^1.0.0
+  dotenv: ^4.2.0
   postgres: ^3.0.5
   shelf_cors_headers: ^0.1.5
 

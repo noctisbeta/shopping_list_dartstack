@@ -15,8 +15,7 @@ class MyElevatedButton extends StatelessWidget {
   final void Function() onPressed;
 
   @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
+  Widget build(BuildContext context) => ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor,
@@ -31,5 +30,4 @@ class MyElevatedButton extends StatelessWidget {
       ),
       child: Text(label),
     );
-  }
 }

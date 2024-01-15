@@ -10,17 +10,15 @@ class MyLoadingIndicator extends StatelessWidget {
   final bool inverted;
 
   @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        CircularProgressIndicator(
-          color: inverted ? kSecondaryColor : kQuaternaryColor,
-          strokeWidth: 8,
-        ),
-        CircularProgressIndicator(
-          color: inverted ? kTernaryColor : kPrimaryColor,
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => Stack(
+        children: [
+          CircularProgressIndicator(
+            color: inverted ? kSecondaryColor : kQuaternaryColor,
+            strokeWidth: 8,
+          ),
+          CircularProgressIndicator(
+            color: inverted ? kTernaryColor : kPrimaryColor,
+          ),
+        ],
+      );
 }

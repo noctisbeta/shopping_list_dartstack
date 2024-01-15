@@ -15,7 +15,7 @@ linter:
     - always_put_control_body_on_new_line
     - always_put_required_named_parameters_first
     - always_require_non_null_named_parameters
-    - always_specify_types
+    # - always_specify_types
     - always_use_package_imports
     - annotate_overrides
     - annotate_redeclares
@@ -81,7 +81,7 @@ linter:
     - diagnostic_describe_all_properties
     - directives_ordering
     - discarded_futures
-    - do_not_use_environment
+    # - do_not_use_environment
     - empty_catches
     - empty_constructor_bodies
     - empty_statements
@@ -166,7 +166,7 @@ linter:
     - prefer_typing_uninitialized_variables
     - prefer_void_to_null
     - provide_deprecation_message
-    - public_member_api_docs
+    # - public_member_api_docs
     - recursive_getters
     - require_trailing_commas
     - secure_pubspec_urls

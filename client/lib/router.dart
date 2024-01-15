@@ -11,7 +11,7 @@ final router = GoRouter(
     GoRoute(
       path: '/room/:code',
       builder: (context, state) => RoomView(
-        code: state.pathParameters['code'] as String,
+        code: state.pathParameters['code']!,
       ),
     ),
   ],

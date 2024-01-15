@@ -1,9 +1,9 @@
+import 'package:common/item/item.dart';
 import 'package:flutter/material.dart';
 import 'package:shopping_list/components/my_elevated_button.dart';
 import 'package:shopping_list/components/my_loading_indicator.dart';
 import 'package:shopping_list/components/my_text_field.dart';
 import 'package:shopping_list/constants/colors.dart';
-import 'package:shopping_list/shopping_list_item.dart';
 import 'package:shopping_list/shopping_list_service.dart';
 
 class AddItemDialog extends StatefulWidget {
@@ -21,7 +21,7 @@ class AddItemDialog extends StatefulWidget {
 class _AddItemDialogState extends State<AddItemDialog> {
   String itemName = '';
   int quantity = 0;
-  double price = 0.0;
+  double price = 0;
   bool loading = false;
 
   Future<void> handleAddItem() async {
@@ -29,11 +29,11 @@ class _AddItemDialogState extends State<AddItemDialog> {
       loading = true;
     });
 
-    popDialog() {
+    void popDialog() {
       Navigator.of(context).pop();
     }
 
-    errorSnackbar() {
+    void errorSnackbar() {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Error adding item'),
@@ -42,7 +42,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
     }
 
     final res = await ShoppingListService.addShoppingListItem(
-      ShoppingListItem(
+      Item(
         name: itemName,
         quantity: quantity,
         price: price,
@@ -62,79 +62,77 @@ class _AddItemDialogState extends State<AddItemDialog> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Material(
-      type: MaterialType.transparency,
-      child: Center(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.8,
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.white,
-              border: Border.all(
-                color: kSecondaryColor,
-                width: 2,
+  Widget build(BuildContext context) => Material(
+        type: MaterialType.transparency,
+        child: Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
+                border: Border.all(
+                  color: kSecondaryColor,
+                  width: 2,
+                ),
               ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                MyTextField(
-                  label: 'Item Name',
-                  inverted: true,
-                  onChanged: (value) {
-                    itemName = value;
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  MyTextField(
+                    label: 'Item Name',
+                    inverted: true,
+                    onChanged: (value) {
+                      itemName = value;
+                    },
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                        child: MyTextField(
+                          label: 'Quantity',
+                          inverted: true,
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            quantity = int.parse(value);
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 12,
+                      ),
+                      Expanded(
+                        child: MyTextField(
+                          label: 'Price',
+                          inverted: true,
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            price = double.parse(value);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  switch (loading) {
+                    true => const MyLoadingIndicator(),
+                    false => MyElevatedButton(
+                        label: 'Add Item',
+                        backgroundColor: kQuaternaryColor,
+                        onPressed: handleAddItem,
+                      ),
                   },
-                ),
-                const SizedBox(
-                  height: 12,
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Expanded(
-                      child: MyTextField(
-                        label: 'Quantity',
-                        inverted: true,
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          quantity = int.parse(value);
-                        },
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 12,
-                    ),
-                    Expanded(
-                      child: MyTextField(
-                        label: 'Price',
-                        inverted: true,
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          price = double.parse(value);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 12,
-                ),
-                switch (loading) {
-                  true => const MyLoadingIndicator(),
-                  false => MyElevatedButton(
-                      label: 'Add Item',
-                      backgroundColor: kQuaternaryColor,
-                      onPressed: handleAddItem,
-                    ),
-                },
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }

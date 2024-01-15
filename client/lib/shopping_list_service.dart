@@ -1,25 +1,46 @@
 import 'dart:developer';
 
+import 'package:common/item/create_item_request.dart';
+import 'package:common/item/item.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shopping_list/dio_client.dart';
-import 'package:shopping_list/shopping_list_item.dart';
 
 abstract final class ShoppingListService {
-  static Future<List<ShoppingListItem>> getShoppingList(String code) async {
-    log('Getting shopping list for room with code: $code');
+  final todo = '';
 
+  static Future<List<Item>> getShoppingList(String code) async {
+    log('Getting shopping list');
     try {
-      final response = await dioClient.get('/items/$code');
-      log('Got response:${response.data}');
+      final response = await dioClient.get('/item/$code');
 
-      return (response.data['items'] as List)
-          .map((item) => ShoppingListItem(
-                name: item['name'] as String,
-                quantity: item['quantity'] as int,
-                price: item['price'] as double,
-              ))
-          .toList();
+      log('Got response: $response');
+
+      final items = switch (response.data) {
+        [
+          {
+            'name': final String _,
+            'quantity': final int _,
+            'price': final double _
+          },
+          ...,
+        ] =>
+          (response.data as List).map(
+            (e) {
+              e = e as Map<String, dynamic>;
+              return Item(
+                name: e['name'] as String,
+                quantity: e['quantity'] as int,
+                price: e['price'] as double,
+              );
+            },
+          ).toList(),
+        _ => null,
+      };
+
+      log('Got items: $items');
+
+      return items ?? [];
     } on DioException catch (e) {
       log(e.message ?? 'Error getting shopping list');
       debugPrint(e.message ?? 'Error getting shopping list', wrapWidth: 1024);
@@ -27,35 +48,47 @@ abstract final class ShoppingListService {
     }
   }
 
-  static Future<ShoppingListItem?> addShoppingListItem(
-    ShoppingListItem item,
+  static Future<Item?> addShoppingListItem(
+    Item item,
     String code,
   ) async {
     log('Adding shopping list item: $item');
 
     try {
       final response = await dioClient.post(
-        '/items',
-        data: {
-          'name': item.name,
-          'quantity': item.quantity,
-          'price': item.price,
-          'code': code,
-        },
+        '/item',
+        data: CreateItemRequest(
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          roomCode: code,
+        ).toMap(),
         options: Options(contentType: Headers.jsonContentType),
       );
-      log('Got response:${response.toString()}');
-      log('Got response data :${response.data.toString()}');
+      log('Got response: $response');
+      log('Got response data: ${response.data}');
 
-      return ShoppingListItem(
-        name: response.data['item']['name'] as String,
-        quantity: response.data['item']['quantity'] as int,
-        price: response.data['item']['price'] as double,
-      );
+      final itemRes = switch (response.data) {
+        {
+          'name': final String name,
+          'quantity': final int quantity,
+          'price': final double price,
+        } =>
+          Item(
+            name: name,
+            quantity: quantity,
+            price: price,
+          ),
+        _ => null,
+      };
+
+      return itemRes;
     } on DioException catch (e) {
       log(e.message ?? 'Error adding shopping list item');
-      debugPrint(e.message ?? 'Error adding shopping list item',
-          wrapWidth: 1024);
+      debugPrint(
+        e.message ?? 'Error adding shopping list item',
+        wrapWidth: 1024,
+      );
       return null;
     }
   }

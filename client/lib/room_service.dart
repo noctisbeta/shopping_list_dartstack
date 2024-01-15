@@ -1,31 +1,39 @@
 import 'dart:developer';
 
+import 'package:common/room/create_room_request.dart';
+import 'package:common/room/room.dart';
 import 'package:dio/dio.dart';
 import 'package:shopping_list/dio_client.dart';
 
 abstract final class RoomService {
-  static Future<String?> getRoomByCode(String code) async {
+  final todo = '';
+
+  static Future<Room?> getRoomByCode(String code) async {
     try {
       final response = await dioClient.get('/room/$code');
-      log('Got response:${response.data}');
 
-      return response.data['code'] as String;
+      final room = Room.validatedFromMap(response.data);
+
+      return room;
     } on DioException catch (e) {
       log(e.message ?? 'Error getting room by code');
       return null;
     }
   }
 
-  static Future<String?> createRoom(String code) async {
+  static Future<Room?> createRoom(String code) async {
     try {
+      final createRoomRequest = CreateRoomRequest(code: code);
+
       final response = await dioClient.post(
         '/room',
-        data: {'code': code},
+        data: createRoomRequest.toMap(),
         options: Options(contentType: Headers.jsonContentType),
       );
-      log('Got response:${response.data}');
 
-      return response.data['code'] as String;
+      final room = Room.validatedFromMap(response.data);
+
+      return room;
     } on DioException catch (e) {
       log(e.message ?? 'Error creating room');
       return null;
