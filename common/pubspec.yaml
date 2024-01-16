@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   equatable: ^2.0.5
+  meta: ^1.11.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1

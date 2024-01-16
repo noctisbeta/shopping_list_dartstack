@@ -1,4 +1,8 @@
-final class CreateRoomRequest {
+import 'package:equatable/equatable.dart';
+import 'package:meta/meta.dart';
+
+@immutable
+final class CreateRoomRequest extends Equatable {
   const CreateRoomRequest({
     required this.code,
   });
@@ -19,4 +23,10 @@ final class CreateRoomRequest {
         {'code': final String _} => CreateRoomRequest._fromMap(map),
         _ => null,
       };
+
+  @override
+  List<Object?> get props => [code];
+
+  @override
+  bool get stringify => true;
 }

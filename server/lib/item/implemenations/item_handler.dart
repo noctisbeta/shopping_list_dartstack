@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:common/item/check_item_request.dart';
 import 'package:common/item/create_item_request.dart';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:shopping_list_backend/item/protocols/item_handler_protocol.dart';
@@ -44,7 +45,32 @@ final class ItemHandler implements ItemHandlerProtocol {
       stdout.writeln(items);
 
       return Response.json(
-        body: items.map((item) => item.toMap()).toList(),
+        body: {
+          items: items.map((item) => item.toMap()).toList(),
+        },
+      );
+    } on FormatException catch (e) {
+      return Response(statusCode: HttpStatus.badRequest, body: e.message);
+    } on Exception {
+      return Response(statusCode: HttpStatus.internalServerError);
+    }
+  }
+
+  @override
+  Future<Response> checkItem(RequestContext context, String id) async {
+    try {
+      final json = await context.request.json();
+
+      final checkItemRequest = CheckItemRequest.validatedFromMap(json);
+
+      if (checkItemRequest == null) {
+        return Response(statusCode: HttpStatus.badRequest);
+      }
+
+      final item = await itemService.checkItem(checkItemRequest);
+
+      return Response.json(
+        body: item.toMap(),
       );
     } on FormatException catch (e) {
       return Response(statusCode: HttpStatus.badRequest, body: e.message);

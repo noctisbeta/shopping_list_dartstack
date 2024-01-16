@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:common/item/check_item_request.dart';
 import 'package:common/item/create_item_request.dart';
 import 'package:postgres/postgres.dart';
 import 'package:shopping_list_backend/common/protocols/database_protocol.dart';
@@ -89,6 +90,37 @@ final class ItemRepository implements ItemRepositoryProtocol {
           }
 
           return items.map((e) => e!).toList();
+        },
+      );
+    } on Exception {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ItemDB> checkItem(CheckItemRequest request) async {
+    try {
+      return await _database.connection.runTx(
+        (s) async {
+          final res2 = await s.execute(
+            Sql.named(
+              'UPDATE items SET checked = @checked WHERE id = @id'
+              ' AND checked = @notChecked RETURNING *',
+            ),
+            parameters: {
+              'id': request.id,
+              'checked': request.checked,
+              'notChecked': !request.checked,
+            },
+          );
+
+          final itemDb = ItemDB.validatedFromMap(res2.first.toColumnMap());
+
+          if (itemDb == null) {
+            throw Exception('Item not updated');
+          }
+
+          return itemDb;
         },
       );
     } on Exception {

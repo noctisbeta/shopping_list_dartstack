@@ -1,4 +1,7 @@
-class CreateItemRequest {
+import 'package:meta/meta.dart';
+
+@immutable
+final class CreateItemRequest {
   const CreateItemRequest({
     required this.name,
     required this.price,

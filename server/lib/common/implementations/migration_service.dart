@@ -1,4 +1,3 @@
-import 'package:logger/logger.dart';
 import 'package:shopping_list_backend/common/models/migration.dart';
 import 'package:shopping_list_backend/common/protocols/database_protocol.dart';
 import 'package:shopping_list_backend/common/protocols/migration_protocol.dart';
@@ -31,6 +30,15 @@ final _migrations = [
     DROP TABLE IF EXISTS items;
     ''',
   ),
+  const Migration(
+    order: 3,
+    up: '''
+    ALTER TABLE IF EXISTS items ADD COLUMN IF NOT EXISTS checked BOOLEAN NOT NULL DEFAULT FALSE;
+    ''',
+    down: '''
+    ALTER TABLE IF EXISTS items DROP COLUMN IF EXISTS checked;
+    ''',
+  ),
 ]..sort((m, n) => m.order.compareTo(n.order));
 
 final class MigrationService implements MigrationProtocol {
@@ -48,7 +56,6 @@ final class MigrationService implements MigrationProtocol {
       final results = <Future>[];
 
       for (final m in _migrations.take(amount)) {
-        Logger().d(m.up);
         results.add(session.execute(m.up));
       }
 

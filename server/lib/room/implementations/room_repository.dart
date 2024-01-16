@@ -1,6 +1,7 @@
 import 'package:common/room/create_room_request.dart';
 import 'package:postgres/postgres.dart';
 import 'package:shopping_list_backend/common/protocols/database_protocol.dart';
+import 'package:shopping_list_backend/item/models/item_db.dart';
 import 'package:shopping_list_backend/room/models/room_db.dart';
 import 'package:shopping_list_backend/room/protocols/room_repository_protocol.dart';
 
@@ -62,4 +63,32 @@ final class RoomRepository implements RoomRepositoryProtocol {
 
   @override
   void getRoomById(int id) {}
+
+  @override
+  Future<List<ItemDB>> getRoomItems(String code) async {
+    try {
+      final room = await getRoomByCode(code);
+
+      final res = await conn.execute(
+        Sql.named('SELECT * FROM items WHERE room_id = @id;'),
+        parameters: {'id': room.id},
+      );
+
+      final items = res.map((entry) {
+        final entryMap = entry.toColumnMap();
+
+        final itemDb = ItemDB.validatedFromMap(entryMap);
+
+        if (itemDb == null) {
+          throw const FormatException('Invalid database schema');
+        }
+
+        return itemDb;
+      }).toList();
+
+      return items;
+    } on Exception {
+      rethrow;
+    }
+  }
 }

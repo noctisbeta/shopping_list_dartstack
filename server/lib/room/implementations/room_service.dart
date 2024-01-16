@@ -1,3 +1,4 @@
+import 'package:common/item/item.dart';
 import 'package:common/room/create_room_request.dart';
 import 'package:common/room/room.dart';
 import 'package:shopping_list_backend/room/protocols/room_repository_protocol.dart';
@@ -27,6 +28,26 @@ final class RoomService implements RoomServiceProtocol {
       final roomDB = await _roomRepository.getRoomByCode(code);
 
       return Room(code: roomDB.code);
+    } on Exception {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<Item>> getRoomItems(String code) async {
+    try {
+      final items = await _roomRepository.getRoomItems(code);
+
+      return items
+          .map(
+            (itemDB) => Item(
+              id: itemDB.id,
+              name: itemDB.name,
+              quantity: itemDB.quantity,
+              price: itemDB.price,
+            ),
+          )
+          .toList();
     } on Exception {
       rethrow;
     }
