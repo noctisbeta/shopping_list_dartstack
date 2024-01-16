@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:common/item/item.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,15 @@ class _RoomViewState extends State<RoomView> {
       builder: (context) => AddItemDialog(
         code: widget.code,
       ),
+    ).then((value) => setFuture());
+  }
+
+  Future<void> handleItemChecked(int id, {required bool checked}) async {
+    log('Checked: $checked');
+    await ShoppingListService.updateItem(
+      id: id,
+      checked: checked,
+      code: widget.code,
     ).then((value) => setFuture());
   }
 
@@ -146,12 +156,13 @@ class _RoomViewState extends State<RoomView> {
                           fontSize: 16,
                         ),
                       ),
-                      // value: snapshot.data![index].isBought,
-                      value: false,
-                      onChanged: (value) {
-                        setState(() {
-                          // snapshot.data![index].isBought = value;
-                        });
+                      value: snapshot.data![index].checked,
+                      onChanged: (value) async {
+                        log('Value: $value');
+                        return handleItemChecked(
+                          snapshot.data![index].id,
+                          checked: value!,
+                        );
                       },
                     );
                   },

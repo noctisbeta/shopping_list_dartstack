@@ -10,7 +10,7 @@ abstract final class RoomService {
 
   static Future<Room?> getRoomByCode(String code) async {
     try {
-      final response = await dioClient.get('/room/$code');
+      final response = await dioClient.get('/rooms/$code');
 
       final room = Room.validatedFromMap(response.data);
 
@@ -26,7 +26,7 @@ abstract final class RoomService {
       final createRoomRequest = CreateRoomRequest(code: code);
 
       final response = await dioClient.post(
-        '/room',
+        '/rooms',
         data: createRoomRequest.toMap(),
         options: Options(contentType: Headers.jsonContentType),
       );

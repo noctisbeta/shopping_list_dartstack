@@ -5,6 +5,7 @@ final class ItemDB {
     required this.price,
     required this.quantity,
     required this.roomId,
+    required this.checked,
   });
 
   factory ItemDB.fromMap(Map<String, dynamic> map) => ItemDB(
@@ -13,6 +14,7 @@ final class ItemDB {
         price: map['price'] as double,
         quantity: map['quantity'] as int,
         roomId: map['room_id'] as int,
+        checked: map['checked'] as bool,
       );
 
   final int id;
@@ -20,6 +22,7 @@ final class ItemDB {
   final double price;
   final int quantity;
   final int roomId;
+  final bool checked;
 
   Map<String, dynamic> toMap() => {
         'id': id,
@@ -27,6 +30,7 @@ final class ItemDB {
         'price': price,
         'quantity': quantity,
         'room_id': roomId,
+        'checked': checked,
       };
 
   static ItemDB? validatedFromMap(Map<String, dynamic> map) => switch (map) {
@@ -35,7 +39,8 @@ final class ItemDB {
           'name': final String _,
           'price': final double _,
           'quantity': final int _,
-          'room_id': final int _
+          'room_id': final int _,
+          'checked': final bool _,
         } =>
           ItemDB.fromMap(map),
         _ => null,

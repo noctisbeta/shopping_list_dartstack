@@ -45,6 +45,7 @@ final class RoomService implements RoomServiceProtocol {
               name: itemDB.name,
               quantity: itemDB.quantity,
               price: itemDB.price,
+              checked: itemDB.checked,
             ),
           )
           .toList();

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:common/item/check_item_request.dart';
 import 'package:common/item/create_item_request.dart';
 import 'package:dart_frog/dart_frog.dart';
+import 'package:logger/logger.dart';
 import 'package:shopping_list_backend/item/protocols/item_handler_protocol.dart';
 import 'package:shopping_list_backend/item/protocols/item_service_protocol.dart';
 
@@ -61,13 +62,15 @@ final class ItemHandler implements ItemHandlerProtocol {
     try {
       final json = await context.request.json();
 
+      Logger().i(json);
+
       final checkItemRequest = CheckItemRequest.validatedFromMap(json);
 
       if (checkItemRequest == null) {
         return Response(statusCode: HttpStatus.badRequest);
       }
 
-      final item = await itemService.checkItem(checkItemRequest);
+      final item = await itemService.checkItem(checkItemRequest, int.parse(id));
 
       return Response.json(
         body: item.toMap(),

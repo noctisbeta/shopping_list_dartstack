@@ -8,7 +8,7 @@ final class Item extends Equatable {
     required this.name,
     required this.price,
     required this.quantity,
-    this.checked = false,
+    required this.checked,
   });
 
   factory Item._fromMap(Map<String, dynamic> map) => Item(

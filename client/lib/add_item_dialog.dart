@@ -1,4 +1,3 @@
-import 'package:common/item/item.dart';
 import 'package:flutter/material.dart';
 import 'package:shopping_list/components/my_elevated_button.dart';
 import 'package:shopping_list/components/my_loading_indicator.dart';
@@ -42,12 +41,10 @@ class _AddItemDialogState extends State<AddItemDialog> {
     }
 
     final res = await ShoppingListService.addShoppingListItem(
-      Item(
-        name: itemName,
-        quantity: quantity,
-        price: price,
-      ),
-      widget.code,
+      name: itemName,
+      quantity: quantity,
+      price: price,
+      code: widget.code,
     );
 
     setState(() {

@@ -98,23 +98,27 @@ final class ItemRepository implements ItemRepositoryProtocol {
   }
 
   @override
-  Future<ItemDB> checkItem(CheckItemRequest request) async {
+  Future<ItemDB> checkItem(CheckItemRequest request, int id) async {
     try {
       return await _database.connection.runTx(
         (s) async {
-          final res2 = await s.execute(
+          final res = await s.execute(
             Sql.named(
               'UPDATE items SET checked = @checked WHERE id = @id'
               ' AND checked = @notChecked RETURNING *',
             ),
             parameters: {
-              'id': request.id,
+              'id': id,
               'checked': request.checked,
               'notChecked': !request.checked,
             },
           );
 
-          final itemDb = ItemDB.validatedFromMap(res2.first.toColumnMap());
+          if (res.isEmpty) {
+            throw Exception('Item not found');
+          }
+
+          final itemDb = ItemDB.validatedFromMap(res.first.toColumnMap());
 
           if (itemDb == null) {
             throw Exception('Item not updated');

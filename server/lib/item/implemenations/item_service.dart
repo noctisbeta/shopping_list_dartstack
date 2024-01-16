@@ -21,6 +21,7 @@ final class ItemService implements ItemServiceProtocol {
         name: item.name,
         price: item.price,
         quantity: item.quantity,
+        checked: item.checked,
       );
     } on FormatException {
       rethrow;
@@ -39,9 +40,11 @@ final class ItemService implements ItemServiceProtocol {
               name: itemDb.name,
               price: itemDb.price,
               quantity: itemDb.quantity,
+              checked: itemDb.checked,
             ),
           )
-          .toList();
+          .toList()
+        ..sort((a, b) => a.id.compareTo(b.id));
 
       stdout.writeln(items);
 
@@ -54,15 +57,16 @@ final class ItemService implements ItemServiceProtocol {
   }
 
   @override
-  Future<Item> checkItem(CheckItemRequest request) async {
+  Future<Item> checkItem(CheckItemRequest request, int id) async {
     try {
-      final item = await itemRepository.checkItem(request);
+      final item = await itemRepository.checkItem(request, id);
 
       return Item(
         id: item.id,
         name: item.name,
         price: item.price,
         quantity: item.quantity,
+        checked: item.checked,
       );
     } on FormatException {
       rethrow;

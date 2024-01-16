@@ -2,7 +2,8 @@ import 'package:dio/dio.dart';
 
 final dioClient = Dio(
   BaseOptions(
-    baseUrl: 'http://localhost:8080',
+    baseUrl: 'http://localhost:8080/api/v1/',
+
     // baseUrl: 'https://shopping-list-backend-ca1w.onrender.com',
   ),
 );

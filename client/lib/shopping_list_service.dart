@@ -12,29 +12,36 @@ abstract final class ShoppingListService {
   static Future<List<Item>> getShoppingList(String code) async {
     log('Getting shopping list');
     try {
-      final response = await dioClient.get('/item/$code');
+      final response = await dioClient.get('/rooms/$code/items');
 
       log('Got response: $response');
 
-      final items = switch (response.data) {
+      final responseMap = response.data as Map<String, dynamic>;
+
+      final items = switch (responseMap['items']) {
         [
           {
+            'id': final int _,
             'name': final String _,
             'quantity': final int _,
-            'price': final double _
+            'price': final double _,
+            'checked': final bool _,
           },
           ...,
         ] =>
-          (response.data as List).map(
+          (responseMap['items'] as List).map(
             (e) {
               e = e as Map<String, dynamic>;
               return Item(
+                id: e['id'] as int,
                 name: e['name'] as String,
                 quantity: e['quantity'] as int,
                 price: e['price'] as double,
+                checked: e['checked'] as bool,
               );
             },
-          ).toList(),
+          ).toList()
+            ..sort((a, b) => a.id.compareTo(b.id)),
         _ => null,
       };
 
@@ -48,19 +55,19 @@ abstract final class ShoppingListService {
     }
   }
 
-  static Future<Item?> addShoppingListItem(
-    Item item,
-    String code,
-  ) async {
-    log('Adding shopping list item: $item');
-
+  static Future<Item?> addShoppingListItem({
+    required String name,
+    required double price,
+    required int quantity,
+    required String code,
+  }) async {
     try {
       final response = await dioClient.post(
-        '/item',
+        '/items',
         data: CreateItemRequest(
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
+          name: name,
+          price: price,
+          quantity: quantity,
           roomCode: code,
         ).toMap(),
         options: Options(contentType: Headers.jsonContentType),
@@ -70,14 +77,17 @@ abstract final class ShoppingListService {
 
       final itemRes = switch (response.data) {
         {
+          'id': final int id,
           'name': final String name,
           'quantity': final int quantity,
           'price': final double price,
         } =>
           Item(
+            id: id,
             name: name,
             quantity: quantity,
             price: price,
+            checked: false,
           ),
         _ => null,
       };
@@ -90,6 +100,25 @@ abstract final class ShoppingListService {
         wrapWidth: 1024,
       );
       return null;
+    }
+  }
+
+  static Future<void> updateItem({
+    required int id,
+    required bool checked,
+    required String code,
+  }) async {
+    try {
+      await dioClient.patch(
+        '/items/$id/check',
+        data: {
+          'checked': checked,
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      );
+    } on DioException catch (e) {
+      log(e.message ?? 'Error updating item');
+      debugPrint(e.message ?? 'Error updating item', wrapWidth: 1024);
     }
   }
 }

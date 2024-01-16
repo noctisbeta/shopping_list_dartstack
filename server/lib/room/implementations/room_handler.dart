@@ -50,7 +50,7 @@ final class RoomHandler implements RoomHandlerProtocol {
       return Response(statusCode: HttpStatus.internalServerError);
     }
   }
-  
+
   @override
   Future<Response> getRoomItems(RequestContext context, String code) async {
     try {
@@ -59,7 +59,9 @@ final class RoomHandler implements RoomHandlerProtocol {
       stdout.writeln(items);
 
       return Response.json(
-        body: items.map((item) => item.toMap()).toList(),
+        body: {
+          'items': items.map((item) => item.toMap()).toList(),
+        },
       );
     } on FormatException catch (e) {
       return Response(statusCode: HttpStatus.badRequest, body: e.message);
