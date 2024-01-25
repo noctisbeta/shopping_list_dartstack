@@ -7,7 +7,7 @@ Future<Response> onRequest(RequestContext context, String code) async {
   final roomHandler = await context.read<Future<RoomHandlerProtocol>>();
 
   return switch (context.request.method) {
-    HttpMethod.get => await roomHandler.getRoomByCode(code),
+    HttpMethod.get => await roomHandler.getRoomByCode(context, code),
     _ => Response(statusCode: HttpStatus.methodNotAllowed),
   };
 }

@@ -1,3 +1,4 @@
+import 'package:common/exceptions/bad_request_body_exception.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
@@ -18,10 +19,11 @@ final class CreateRoomRequest extends Equatable {
         'code': code,
       };
 
-  static CreateRoomRequest? validatedFromMap(Map<String, dynamic> map) =>
+  /// Throws [BadRequestBodyException] if [map] has invalid format.
+  static CreateRoomRequest validatedFromMap(Map<String, dynamic> map) =>
       switch (map) {
         {'code': final String _} => CreateRoomRequest._fromMap(map),
-        _ => null,
+        _ => throw const BadRequestBodyException('Invalid map format')
       };
 
   @override

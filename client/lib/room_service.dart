@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:common/logger/logger.dart';
 import 'package:common/room/create_room_request.dart';
 import 'package:common/room/room.dart';
 import 'package:dio/dio.dart';
@@ -35,7 +37,18 @@ abstract final class RoomService {
 
       return room;
     } on DioException catch (e) {
-      log(e.message ?? 'Error creating room');
+      LOG.e(e.response?.data ?? 'Error creating room $e');
+      final code = e.response?.statusCode;
+
+      switch (code) {
+        case HttpStatus.conflict:
+          LOG.e('Room already exists');
+        default:
+          LOG.e('Unknown error creating room');
+      }
+      return null;
+    } on Exception catch (e) {
+      LOG.e('Unknown exception $e');
       return null;
     }
   }

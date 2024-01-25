@@ -1,5 +1,6 @@
 import 'package:common/room/create_room_request.dart';
 import 'package:postgres/postgres.dart';
+import 'package:shopping_list_backend/common/exceptions/database_exception.dart';
 import 'package:shopping_list_backend/common/protocols/database_protocol.dart';
 import 'package:shopping_list_backend/item/models/item_db.dart';
 import 'package:shopping_list_backend/room/models/room_db.dart';
@@ -16,23 +17,29 @@ final class RoomRepository implements RoomRepositoryProtocol {
 
   @override
   Future<RoomDB> createRoom(CreateRoomRequest request) async {
-    final res = await conn.execute(
-      Sql.named('INSERT INTO rooms (code) VALUES (@code) RETURNING id;'),
-      parameters: {'code': request.code},
-    );
+    try {
+      final res = await conn.execute(
+        Sql.named('INSERT INTO rooms (code) VALUES (@code) RETURNING *;'),
+        parameters: {'code': request.code},
+      );
 
-    final firstEntryMap = res.first.toColumnMap();
+      final firstEntryMap = res.first.toColumnMap();
 
-    final room = switch (firstEntryMap) {
-      <String, dynamic>{
-        'id': final int _,
-        'code': final String _,
-      } =>
-        RoomDB.fromMap(firstEntryMap),
-      _ => throw const FormatException('Invalid database schema'),
-    };
+      final room = RoomDB.validatedFromMap(firstEntryMap);
 
-    return room;
+      return room;
+    } on ServerException catch (e) {
+      switch (e.code) {
+        case '23505':
+          throw DatabaseUniqueViolationException(e.toString());
+        default:
+          throw DatabaseUnknownException(e.toString());
+      }
+    } on BadCertificateException catch (e) {
+      throw DatabaseBadCertificateException(e.toString());
+    } on Exception {
+      rethrow;
+    }
   }
 
   /// Throws [FormatException] if the database schema is invalid.
@@ -46,14 +53,7 @@ final class RoomRepository implements RoomRepositoryProtocol {
 
       final firstEntryMap = res.first.toColumnMap();
 
-      final room = switch (firstEntryMap) {
-        <String, dynamic>{
-          'id': final int _,
-          'code': final String _,
-        } =>
-          RoomDB.fromMap(firstEntryMap),
-        _ => throw const FormatException('Invalid database schema'),
-      };
+      final room = RoomDB.validatedFromMap(firstEntryMap);
 
       return room;
     } on Exception {

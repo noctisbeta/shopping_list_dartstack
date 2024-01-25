@@ -1,10 +1,12 @@
+import 'package:shopping_list_backend/common/exceptions/database_exception.dart';
+
 final class RoomDB {
   RoomDB({
     required this.id,
     required this.code,
   });
 
-  factory RoomDB.fromMap(Map<String, dynamic> map) => RoomDB(
+  factory RoomDB._fromMap(Map<String, dynamic> map) => RoomDB(
         id: map['id'] as int,
         code: map['code'] as String,
       );
@@ -17,8 +19,8 @@ final class RoomDB {
         'code': code,
       };
 
-  static RoomDB? validatedFromMap(Map<String, dynamic> map) => switch (map) {
-        {'id': final int _, 'code': final String _} => RoomDB.fromMap(map),
-        _ => null,
+  static RoomDB validatedFromMap(Map<String, dynamic> map) => switch (map) {
+        {'id': int _, 'code': String _} => RoomDB._fromMap(map),
+        _ => throw const DatabaseSchemaException('Invalid database schema'),
       };
 }

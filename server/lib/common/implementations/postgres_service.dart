@@ -23,7 +23,7 @@ final class PostgresService implements DatabaseProtocol {
         ),
       );
       return PostgresService._(conn);
-    } on Exception {
+    } on Exception catch (e) {
       rethrow;
     }
   }
