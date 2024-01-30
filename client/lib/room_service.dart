@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:common/logger/logger.dart';
@@ -18,7 +17,15 @@ abstract final class RoomService {
 
       return room;
     } on DioException catch (e) {
-      log(e.message ?? 'Error getting room by code');
+      LOG.e(e.response?.data ?? 'Error creating room $e');
+      final code = e.response?.statusCode;
+
+      switch (code) {
+        case HttpStatus.notFound:
+          LOG.e('Room not found');
+        default:
+          LOG.e('Unknown error creating room');
+      }
       return null;
     }
   }

@@ -22,3 +22,7 @@ final class DatabaseBadCertificateException extends DatabaseException {
 final class DatabaseSchemaException extends DatabaseException {
   const DatabaseSchemaException(super.message);
 }
+
+final class DatabaseEmptyResultException extends DatabaseException {
+  const DatabaseEmptyResultException(super.message);
+}

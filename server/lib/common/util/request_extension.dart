@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:common/exceptions/bad_content_type_exception.dart';
 import 'package:dart_frog/dart_frog.dart';
 
 extension RequestExtension on Request {
@@ -9,5 +8,5 @@ extension RequestExtension on Request {
   void assertContentType(String mime) =>
       headers[HttpHeaders.contentTypeHeader]?.contains(mime) ?? false
           ? true
-          : throw const BadContentTypeException('Invalid content type');
+          : throw const BadRequestContentTypeException('Invalid content type');
 }

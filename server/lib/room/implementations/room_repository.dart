@@ -1,7 +1,9 @@
+import 'package:common/exceptions/throws.dart';
 import 'package:common/room/create_room_request.dart';
 import 'package:postgres/postgres.dart';
 import 'package:shopping_list_backend/common/exceptions/database_exception.dart';
 import 'package:shopping_list_backend/common/protocols/database_protocol.dart';
+import 'package:shopping_list_backend/common/util/result_extension.dart';
 import 'package:shopping_list_backend/item/models/item_db.dart';
 import 'package:shopping_list_backend/room/models/room_db.dart';
 import 'package:shopping_list_backend/room/protocols/room_repository_protocol.dart';
@@ -16,6 +18,12 @@ final class RoomRepository implements RoomRepositoryProtocol {
   Connection get conn => _database.connection;
 
   @override
+  @Throws([
+    DatabaseUniqueViolationException,
+    DatabaseUnknownException,
+    DatabaseBadCertificateException,
+    DatabaseSchemaException,
+  ])
   Future<RoomDB> createRoom(CreateRoomRequest request) async {
     try {
       final res = await conn.execute(
@@ -44,6 +52,13 @@ final class RoomRepository implements RoomRepositoryProtocol {
 
   /// Throws [FormatException] if the database schema is invalid.
   @override
+  @Throws(
+    [
+      DatabaseEmptyResultException,
+      DatabaseUnknownException,
+      DatabaseBadCertificateException,
+    ],
+  )
   Future<RoomDB> getRoomByCode(String code) async {
     try {
       final res = await conn.execute(
@@ -51,11 +66,22 @@ final class RoomRepository implements RoomRepositoryProtocol {
         parameters: {'code': code},
       );
 
+      res.assertNotEmpty();
+
       final firstEntryMap = res.first.toColumnMap();
 
       final room = RoomDB.validatedFromMap(firstEntryMap);
 
       return room;
+    } on DatabaseEmptyResultException {
+      rethrow;
+    } on ServerException catch (e) {
+      switch (e.code) {
+        default:
+          throw DatabaseUnknownException(e.toString());
+      }
+    } on BadCertificateException catch (e) {
+      throw DatabaseBadCertificateException(e.toString());
     } on Exception {
       rethrow;
     }

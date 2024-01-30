@@ -27,10 +27,6 @@ final class ItemRepository implements ItemRepositoryProtocol {
 
           final roomDB = RoomDB.validatedFromMap(res.first.toColumnMap());
 
-          if (roomDB == null) {
-            throw Exception('Room not found');
-          }
-
           final res2 = await s.execute(
             Sql.named(
               'INSERT INTO items (name, price, quantity, room_id) VALUES '
@@ -72,10 +68,6 @@ final class ItemRepository implements ItemRepositoryProtocol {
           stdout.writeln(res);
 
           final roomDB = RoomDB.validatedFromMap(res.first.toColumnMap());
-
-          if (roomDB == null) {
-            throw Exception('Room not found');
-          }
 
           final res2 = await s.execute(
             Sql.named('SELECT * FROM items WHERE room_id = @room_id'),

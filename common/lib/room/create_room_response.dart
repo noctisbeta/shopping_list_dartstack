@@ -1,4 +1,4 @@
-import 'package:common/exceptions/bad_response_body_exception.dart';
+import 'package:common/exceptions/response_exception.dart';
 import 'package:common/room/room.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';

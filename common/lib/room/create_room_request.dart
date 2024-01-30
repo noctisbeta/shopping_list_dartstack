@@ -1,4 +1,4 @@
-import 'package:common/exceptions/bad_request_body_exception.dart';
+import 'package:common/exceptions/request_Exception.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 

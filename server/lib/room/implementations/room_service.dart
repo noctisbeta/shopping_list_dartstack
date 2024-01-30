@@ -1,3 +1,5 @@
+import 'package:common/exceptions/bad_request_body_exception.dart';
+import 'package:common/exceptions/validated_model_exception.dart';
 import 'package:common/item/item.dart';
 import 'package:common/room/create_room_request.dart';
 import 'package:common/room/room.dart';
@@ -16,7 +18,7 @@ final class RoomService implements RoomServiceProtocol {
     try {
       final roomDb = await _roomRepository.createRoom(request);
 
-      return Room(code: roomDb.code);
+      return Room.validated(code: roomDb.code);
     } on Exception {
       rethrow;
     }
@@ -25,9 +27,13 @@ final class RoomService implements RoomServiceProtocol {
   @override
   Future<Room> getRoomByCode(String code) async {
     try {
+      Room.assertValidCode(code);
+
       final roomDB = await _roomRepository.getRoomByCode(code);
 
-      return Room(code: roomDB.code);
+      return Room.validated(code: roomDB.code);
+    } on ValidatedModelException catch (e) {
+      throw BadRequestBodyException(e.message);
     } on Exception {
       rethrow;
     }

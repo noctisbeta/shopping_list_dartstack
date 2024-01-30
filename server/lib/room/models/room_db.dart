@@ -1,3 +1,4 @@
+import 'package:common/exceptions/throws.dart';
 import 'package:shopping_list_backend/common/exceptions/database_exception.dart';
 
 final class RoomDB {
@@ -19,6 +20,7 @@ final class RoomDB {
         'code': code,
       };
 
+  @Throws([DatabaseSchemaException])
   static RoomDB validatedFromMap(Map<String, dynamic> map) => switch (map) {
         {'id': int _, 'code': String _} => RoomDB._fromMap(map),
         _ => throw const DatabaseSchemaException('Invalid database schema'),

@@ -1,3 +1,4 @@
+import 'package:common/logger/logger.dart';
 import 'package:dotenv/dotenv.dart';
 import 'package:postgres/postgres.dart';
 import 'package:shopping_list_backend/common/protocols/database_protocol.dart';
@@ -22,8 +23,11 @@ final class PostgresService implements DatabaseProtocol {
           password: env['POSTGRES_PASSWORD'],
         ),
       );
+
+      conn.channels.all.listen(LOG.i);
       return PostgresService._(conn);
     } on Exception catch (e) {
+      LOG.e('Failed to connect to database: $e');
       rethrow;
     }
   }
