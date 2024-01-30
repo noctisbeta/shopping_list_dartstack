@@ -1,4 +1,4 @@
-import 'package:common/exceptions/bad_request_body_exception.dart';
+import 'package:common/exceptions/request_exception.dart';
 import 'package:common/exceptions/validated_model_exception.dart';
 import 'package:common/item/item.dart';
 import 'package:common/room/create_room_request.dart';

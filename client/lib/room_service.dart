@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:common/logger/logger.dart';
 import 'package:common/room/create_room_request.dart';
+import 'package:common/room/get_room_response.dart';
 import 'package:common/room/room.dart';
 import 'package:dio/dio.dart';
 import 'package:shopping_list/dio_client.dart';
@@ -13,7 +14,9 @@ abstract final class RoomService {
     try {
       final response = await dioClient.get('/rooms/$code');
 
-      final room = Room.validatedFromMap(response.data);
+      final getRoomResponse = GetRoomResponse.validatedFromMap(response.data);
+
+      final room = Room.validatedFromMap(getRoomResponse.toMap()['room']);
 
       return room;
     } on DioException catch (e) {
@@ -40,7 +43,11 @@ abstract final class RoomService {
         options: Options(contentType: Headers.jsonContentType),
       );
 
-      final room = Room.validatedFromMap(response.data);
+      LOG.i(response.data);
+
+      final room = Room.validatedFromMap(
+        (response.data as Map<String, dynamic>)['room'],
+      );
 
       return room;
     } on DioException catch (e) {

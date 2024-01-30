@@ -3,22 +3,22 @@ import 'dart:io';
 import 'package:common/item/check_item_request.dart';
 import 'package:common/item/create_item_request.dart';
 import 'package:postgres/postgres.dart';
-import 'package:shopping_list_backend/common/protocols/database_protocol.dart';
+import 'package:shopping_list_backend/common/implementations/postgres_service.dart';
 import 'package:shopping_list_backend/item/models/item_db.dart';
 import 'package:shopping_list_backend/item/protocols/item_repository_protocol.dart';
 import 'package:shopping_list_backend/room/models/room_db.dart';
 
 final class ItemRepository implements ItemRepositoryProtocol {
   const ItemRepository({
-    required DatabaseProtocol database,
-  }) : _database = database;
+    required PostgresService database,
+  }) : _db = database;
 
-  final DatabaseProtocol _database;
+  final PostgresService _db;
 
   @override
   Future<ItemDB> createItem(CreateItemRequest request) {
     try {
-      return _database.connection.runTx(
+      return _db.runTx(
         (s) async {
           final res = await s.execute(
             Sql.named('SELECT * FROM rooms WHERE code = @code'),
@@ -58,7 +58,7 @@ final class ItemRepository implements ItemRepositoryProtocol {
   Future<List<ItemDB>> getItems(String code) async {
     stdout.writeln('ItemRepository.getItems');
     try {
-      return await _database.connection.runTx(
+      return await _db.runTx(
         (s) async {
           final res = await s.execute(
             Sql.named('SELECT * FROM rooms WHERE code = @code'),
@@ -81,7 +81,8 @@ final class ItemRepository implements ItemRepositoryProtocol {
             throw Exception('Item not found');
           }
 
-          return items.map((e) => e!).toList();
+          return Future.value(items.map((e) => e!).toList());
+          
         },
       );
     } on Exception {
@@ -92,7 +93,7 @@ final class ItemRepository implements ItemRepositoryProtocol {
   @override
   Future<ItemDB> checkItem(CheckItemRequest request, int id) async {
     try {
-      return await _database.connection.runTx(
+      return await _db.runTx(
         (s) async {
           final res = await s.execute(
             Sql.named(

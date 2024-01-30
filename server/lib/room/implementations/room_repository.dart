@@ -2,7 +2,7 @@ import 'package:common/exceptions/throws.dart';
 import 'package:common/room/create_room_request.dart';
 import 'package:postgres/postgres.dart';
 import 'package:shopping_list_backend/common/exceptions/database_exception.dart';
-import 'package:shopping_list_backend/common/protocols/database_protocol.dart';
+import 'package:shopping_list_backend/common/implementations/postgres_service.dart';
 import 'package:shopping_list_backend/common/util/result_extension.dart';
 import 'package:shopping_list_backend/item/models/item_db.dart';
 import 'package:shopping_list_backend/room/models/room_db.dart';
@@ -10,12 +10,10 @@ import 'package:shopping_list_backend/room/protocols/room_repository_protocol.da
 
 final class RoomRepository implements RoomRepositoryProtocol {
   const RoomRepository({
-    required DatabaseProtocol database,
-  }) : _database = database;
+    required PostgresService database,
+  }) : _db = database;
 
-  final DatabaseProtocol _database;
-
-  Connection get conn => _database.connection;
+  final PostgresService _db;
 
   @override
   @Throws([
@@ -26,7 +24,7 @@ final class RoomRepository implements RoomRepositoryProtocol {
   ])
   Future<RoomDB> createRoom(CreateRoomRequest request) async {
     try {
-      final res = await conn.execute(
+      final res = await _db.execute(
         Sql.named('INSERT INTO rooms (code) VALUES (@code) RETURNING *;'),
         parameters: {'code': request.code},
       );
@@ -61,7 +59,7 @@ final class RoomRepository implements RoomRepositoryProtocol {
   )
   Future<RoomDB> getRoomByCode(String code) async {
     try {
-      final res = await conn.execute(
+      final res = await _db.execute(
         Sql.named('SELECT * FROM rooms WHERE code = @code;'),
         parameters: {'code': code},
       );
@@ -95,7 +93,7 @@ final class RoomRepository implements RoomRepositoryProtocol {
     try {
       final room = await getRoomByCode(code);
 
-      final res = await conn.execute(
+      final res = await _db.execute(
         Sql.named('SELECT * FROM items WHERE room_id = @id;'),
         parameters: {'id': room.id},
       );

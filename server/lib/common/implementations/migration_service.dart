@@ -1,5 +1,5 @@
+import 'package:shopping_list_backend/common/implementations/postgres_service.dart';
 import 'package:shopping_list_backend/common/models/migration.dart';
-import 'package:shopping_list_backend/common/protocols/database_protocol.dart';
 import 'package:shopping_list_backend/common/protocols/migration_protocol.dart';
 
 final _migrations = [
@@ -43,16 +43,16 @@ final _migrations = [
 
 final class MigrationService implements MigrationProtocol {
   MigrationService({
-    required DatabaseProtocol db,
+    required PostgresService db,
   }) : _db = db;
 
-  final DatabaseProtocol _db;
+  final PostgresService _db;
 
   @override
   Future<void> up({int? count}) async {
     final amount = count ?? _migrations.length;
 
-    await _db.connection.runTx((session) {
+    await _db.runTx((session) {
       final results = <Future>[];
 
       for (final m in _migrations.take(amount)) {
@@ -67,7 +67,7 @@ final class MigrationService implements MigrationProtocol {
   Future<void> down({int? count}) async {
     final amount = count ?? _migrations.length;
 
-    await _db.connection.runTx((session) {
+    await _db.runTx((session) {
       final results = <Future>[];
 
       for (final m in _migrations.reversed.take(amount)) {

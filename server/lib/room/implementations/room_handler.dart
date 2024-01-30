@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:common/exceptions/bad_content_type_exception.dart';
-import 'package:common/exceptions/bad_request_body_exception.dart';
+import 'package:common/exceptions/request_exception.dart';
 import 'package:common/logger/logger.dart';
 import 'package:common/room/create_room_request.dart';
 import 'package:common/room/create_room_response.dart';
+import 'package:common/room/get_room_response.dart';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:shopping_list_backend/common/exceptions/database_exception.dart';
 import 'package:shopping_list_backend/common/util/request_extension.dart';
@@ -17,6 +17,29 @@ final class RoomHandler implements RoomHandlerProtocol {
   }) : _roomService = roomService;
 
   final RoomServiceProtocol _roomService;
+
+  Response _handledUnknownException(Exception e) {
+    LOG.e('Unknown Exception: ${e.runtimeType}: $e');
+    return Response(
+      statusCode: HttpStatus.internalServerError,
+      body: 'Unknown Exception: ${e.runtimeType}: $e',
+    );
+  }
+
+  Response _handledRequestException(RequestException e) {
+    switch (e) {
+      case BadRequestContentTypeException():
+        return Response(
+          statusCode: HttpStatus.unsupportedMediaType,
+          body: e.message,
+        );
+      case BadRequestBodyException():
+        return Response(
+          statusCode: HttpStatus.badRequest,
+          body: e.message,
+        );
+    }
+  }
 
   Response _handledDatabaseException(DatabaseException e) {
     switch (e) {
@@ -67,29 +90,14 @@ final class RoomHandler implements RoomHandlerProtocol {
         statusCode: HttpStatus.created,
         body: createRoomResponse.toMap(),
       );
-    } on BadContentTypeException catch (e) {
-      return Response(
-        statusCode: HttpStatus.unsupportedMediaType,
-        body: e.message,
-      );
+    } on RequestException catch (e) {
+      return _handledRequestException(e);
     } on FormatException catch (e) {
-      return Response(
-        statusCode: HttpStatus.badRequest,
-        body: e.message,
-      );
-    } on BadRequestBodyException catch (e) {
-      return Response(
-        statusCode: HttpStatus.badRequest,
-        body: e.message,
-      );
+      return Response(statusCode: HttpStatus.badRequest, body: e.message);
     } on DatabaseException catch (e) {
       return _handledDatabaseException(e);
     } on Exception catch (e) {
-      LOG.e('Unexpected exception of type ${e.runtimeType}: $e');
-      return Response(
-        statusCode: HttpStatus.internalServerError,
-        body: 'Unexpected exception: $e',
-      );
+      return _handledUnknownException(e);
     }
   }
 
@@ -98,43 +106,21 @@ final class RoomHandler implements RoomHandlerProtocol {
     try {
       final room = await _roomService.getRoomByCode(code);
 
+      final roomMap = {
+        'room': room.toMap(),
+      };
+
+      final getRoomResponse = GetRoomResponse.validatedFromMap(roomMap);
+
       return Response.json(
-        body: room.toMap(),
+        body: getRoomResponse.toMap(),
       );
     } on DatabaseException catch (e) {
-      switch (e) {
-        case DatabaseUnknownException():
-          LOG.e('Unknown Database Exception: ${e.message}');
-          return Response(
-            statusCode: HttpStatus.internalServerError,
-            body: 'Unknown Database Exception: ${e.message}',
-          );
-        case DatabaseUniqueViolationException():
-          return Response(
-            statusCode: HttpStatus.conflict,
-            body: e.message,
-          );
-
-        case DatabaseBadCertificateException():
-          return Response(
-            statusCode: HttpStatus.internalServerError,
-            body: e.message,
-          );
-        case DatabaseSchemaException():
-          return Response(
-            statusCode: HttpStatus.internalServerError,
-            body: e.message,
-          );
-        case DatabaseEmptyResultException():
-          return Response(
-            statusCode: HttpStatus.notFound,
-            body: e.message,
-          );
-      }
+      return _handledDatabaseException(e);
     } on FormatException catch (e) {
       return Response(statusCode: HttpStatus.badRequest, body: e.message);
-    } on Exception {
-      return Response(statusCode: HttpStatus.internalServerError);
+    } on Exception catch (e) {
+      return _handledUnknownException(e);
     }
   }
 
@@ -143,8 +129,6 @@ final class RoomHandler implements RoomHandlerProtocol {
     try {
       final items = await _roomService.getRoomItems(code);
 
-      stdout.writeln(items);
-
       return Response.json(
         body: {
           'items': items.map((item) => item.toMap()).toList(),
@@ -152,8 +136,8 @@ final class RoomHandler implements RoomHandlerProtocol {
       );
     } on FormatException catch (e) {
       return Response(statusCode: HttpStatus.badRequest, body: e.message);
-    } on Exception {
-      return Response(statusCode: HttpStatus.internalServerError);
+    } on Exception catch (e) {
+      return _handledUnknownException(e);
     }
   }
 }
