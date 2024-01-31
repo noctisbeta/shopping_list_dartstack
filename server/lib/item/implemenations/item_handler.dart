@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:common/item/check_item_request.dart';
 import 'package:common/item/create_item_request.dart';
 import 'package:dart_frog/dart_frog.dart';
+import 'package:shopping_list_backend/common/util/request_extension.dart';
 import 'package:shopping_list_backend/item/protocols/item_handler_protocol.dart';
 import 'package:shopping_list_backend/item/protocols/item_service_protocol.dart';
 
@@ -16,7 +17,10 @@ final class ItemHandler implements ItemHandlerProtocol {
   @override
   Future<Response> createItem(RequestContext context) async {
     try {
-      final json = await context.request.json();
+      final request = context.request
+        ..assertContentType(ContentType.json.mimeType);
+
+      final json = await request.json();
 
       final createItemRequest = CreateItemRequest.validatedFromMap(json);
 

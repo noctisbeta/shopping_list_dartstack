@@ -1,17 +1,13 @@
 import 'package:common/exceptions/request_Exception.dart';
+import 'package:common/exceptions/throws.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 @immutable
 final class CreateRoomRequest extends Equatable {
-  const CreateRoomRequest({
+  const CreateRoomRequest._({
     required this.code,
   });
-
-  factory CreateRoomRequest._fromMap(Map<String, dynamic> map) =>
-      CreateRoomRequest(
-        code: map['code'] as String,
-      );
 
   final String code;
 
@@ -19,11 +15,13 @@ final class CreateRoomRequest extends Equatable {
         'code': code,
       };
 
-  /// Throws [BadRequestBodyException] if [map] has invalid format.
+  @Throws([BadRequestBodyException])
   static CreateRoomRequest validatedFromMap(Map<String, dynamic> map) =>
       switch (map) {
-        {'code': final String _} => CreateRoomRequest._fromMap(map),
-        _ => throw const BadRequestBodyException('Invalid map format')
+        {'code': final String code} => CreateRoomRequest._(code: code),
+        _ => throw const BadRequestBodyException(
+            'Invalid map format for CreateRoomRequest',
+          )
       };
 
   @override

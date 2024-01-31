@@ -1,3 +1,4 @@
+import 'package:common/exceptions/propagates.dart';
 import 'package:common/exceptions/throws.dart';
 import 'package:common/room/create_room_request.dart';
 import 'package:postgres/postgres.dart';
@@ -16,45 +17,26 @@ final class RoomRepository implements RoomRepositoryProtocol {
   final PostgresService _db;
 
   @override
-  @Throws([
-    DatabaseUniqueViolationException,
-    DatabaseUnknownException,
-    DatabaseBadCertificateException,
-    DatabaseSchemaException,
-  ])
+  @Propagates([DatabaseException])
   Future<RoomDB> createRoom(CreateRoomRequest request) async {
-    try {
-      final res = await _db.execute(
-        Sql.named('INSERT INTO rooms (code) VALUES (@code) RETURNING *;'),
-        parameters: {'code': request.code},
-      );
+    final res = await _db.execute(
+      Sql.named('INSERT INTO rooms (code) VALUES (@code) RETURNING *;'),
+      parameters: {'code': request.code},
+    );
 
-      final firstEntryMap = res.first.toColumnMap();
+    final firstEntryMap = res.first.toColumnMap();
 
-      final room = RoomDB.validatedFromMap(firstEntryMap);
+    final room = RoomDB.validatedFromMap(firstEntryMap);
 
-      return room;
-    } on ServerException catch (e) {
-      switch (e.code) {
-        case '23505':
-          throw DatabaseUniqueViolationException(e.toString());
-        default:
-          throw DatabaseUnknownException(e.toString());
-      }
-    } on BadCertificateException catch (e) {
-      throw DatabaseBadCertificateException(e.toString());
-    } on Exception {
-      rethrow;
-    }
+    return room;
   }
 
   /// Throws [FormatException] if the database schema is invalid.
   @override
   @Throws(
     [
-      DatabaseEmptyResultException,
-      DatabaseUnknownException,
-      DatabaseBadCertificateException,
+      DatabaseException,
+      DBEemptyResult,
     ],
   )
   Future<RoomDB> getRoomByCode(String code) async {
@@ -71,31 +53,23 @@ final class RoomRepository implements RoomRepositoryProtocol {
       final room = RoomDB.validatedFromMap(firstEntryMap);
 
       return room;
-    } on DatabaseEmptyResultException {
+    } on DBEemptyResult {
       rethrow;
-    } on ServerException catch (e) {
-      switch (e.code) {
-        default:
-          throw DatabaseUnknownException(e.toString());
-      }
-    } on BadCertificateException catch (e) {
-      throw DatabaseBadCertificateException(e.toString());
+    } on DatabaseException {
+      rethrow;
     } on Exception {
       rethrow;
     }
   }
 
   @override
-  void getRoomById(int id) {}
-
-  @override
   Future<List<ItemDB>> getRoomItems(String code) async {
     try {
-      final room = await getRoomByCode(code);
+      final roomDb = await getRoomByCode(code);
 
       final res = await _db.execute(
         Sql.named('SELECT * FROM items WHERE room_id = @id;'),
-        parameters: {'id': room.id},
+        parameters: {'id': roomDb.id},
       );
 
       final items = res.map((entry) {
@@ -111,6 +85,10 @@ final class RoomRepository implements RoomRepositoryProtocol {
       }).toList();
 
       return items;
+    } on DBEemptyResult {
+      rethrow;
+    } on DatabaseException {
+      rethrow;
     } on Exception {
       rethrow;
     }

@@ -15,13 +15,9 @@ final class RoomService implements RoomServiceProtocol {
 
   @override
   Future<Room> createRoom(CreateRoomRequest request) async {
-    try {
-      final roomDb = await _roomRepository.createRoom(request);
+    final roomDb = await _roomRepository.createRoom(request);
 
-      return Room.validated(code: roomDb.code);
-    } on Exception {
-      rethrow;
-    }
+    return Room.validated(code: roomDb.code);
   }
 
   @override

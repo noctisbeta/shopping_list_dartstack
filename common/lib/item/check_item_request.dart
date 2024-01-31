@@ -1,16 +1,12 @@
+import 'package:common/exceptions/request_exception.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 @immutable
 final class CheckItemRequest extends Equatable {
-  const CheckItemRequest({
+  const CheckItemRequest._({
     required this.checked,
   });
-
-  factory CheckItemRequest._fromMap(Map<String, dynamic> map) =>
-      CheckItemRequest(
-        checked: map['checked'] as bool,
-      );
 
   final bool checked;
 
@@ -18,13 +14,15 @@ final class CheckItemRequest extends Equatable {
         'checked': checked,
       };
 
-  static CheckItemRequest? validatedFromMap(Map<String, dynamic> map) =>
+  static CheckItemRequest validatedFromMap(Map<String, dynamic> map) =>
       switch (map) {
         {
-          'checked': final bool _,
+          'checked': final bool checked,
         } =>
-          CheckItemRequest._fromMap(map),
-        _ => null,
+          CheckItemRequest._(checked: checked),
+        _ => throw const BadRequestBodyException(
+            'Invalid map format for CheckItemRequest',
+          )
       };
 
   @override

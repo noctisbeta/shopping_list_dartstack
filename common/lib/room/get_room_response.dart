@@ -1,4 +1,5 @@
 import 'package:common/exceptions/response_exception.dart';
+import 'package:common/exceptions/throws.dart';
 import 'package:common/room/room.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
@@ -9,27 +10,26 @@ final class GetRoomResponse extends Equatable {
     required this.room,
   });
 
-  factory GetRoomResponse._fromMap(Map<String, dynamic> map) =>
-      GetRoomResponse._(
-        room: Room.validatedFromMap(map['room']),
-      );
-
   final Room room;
 
   Map<String, dynamic> toMap() => {
         'room': room.toMap(),
       };
 
-  /// Throws [BadResponseBodyException] if [map] has invalid format.
+  @Throws([BadResponseBodyException])
   static GetRoomResponse validatedFromMap(Map<String, dynamic> map) =>
       switch (map) {
         {
           'room': {
-            'code': String _,
+            'code': final String code,
           }
         } =>
-          GetRoomResponse._fromMap(map),
-        _ => throw const BadResponseBodyException('Invalid map format')
+          GetRoomResponse._(
+            room: Room.validated(code: code),
+          ),
+        _ => throw const BadResponseBodyException(
+            'Invalid map format for GetRoomResponse',
+          )
       };
 
   @override

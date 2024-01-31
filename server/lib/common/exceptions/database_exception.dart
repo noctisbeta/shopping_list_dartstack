@@ -7,22 +7,22 @@ sealed class DatabaseException implements Exception {
   String toString() => 'DatabaseException: $message';
 }
 
-final class DatabaseUniqueViolationException extends DatabaseException {
-  const DatabaseUniqueViolationException(super.message);
+final class DBEuniqueViolation extends DatabaseException {
+  const DBEuniqueViolation(super.message);
 }
 
-final class DatabaseUnknownException extends DatabaseException {
-  const DatabaseUnknownException(super.message);
+final class DBEunknown extends DatabaseException {
+  const DBEunknown(super.message);
 }
 
-final class DatabaseBadCertificateException extends DatabaseException {
-  const DatabaseBadCertificateException(super.message);
+final class DBEbadCertificate extends DatabaseException {
+  const DBEbadCertificate(super.message);
 }
 
-final class DatabaseSchemaException extends DatabaseException {
-  const DatabaseSchemaException(super.message);
+final class DBEbadSchema extends DatabaseException {
+  const DBEbadSchema(super.message);
 }
 
-final class DatabaseEmptyResultException extends DatabaseException {
-  const DatabaseEmptyResultException(super.message);
+final class DBEemptyResult extends DatabaseException {
+  const DBEemptyResult(super.message);
 }

@@ -4,7 +4,7 @@ import 'package:shopping_list_backend/common/exceptions/database_exception.dart'
 extension ResultExtension on Result {
   void assertNotEmpty() {
     if (isEmpty) {
-      throw const DatabaseEmptyResultException('Result is empty');
+      throw const DBEemptyResult('Result is empty');
     }
   }
 }

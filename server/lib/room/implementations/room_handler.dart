@@ -43,28 +43,28 @@ final class RoomHandler implements RoomHandlerProtocol {
 
   Response _handledDatabaseException(DatabaseException e) {
     switch (e) {
-      case DatabaseUnknownException():
+      case DBEunknown():
         LOG.e('Unknown Database Exception: ${e.message}');
         return Response(
           statusCode: HttpStatus.internalServerError,
           body: 'Unknown Database Exception: ${e.message}',
         );
-      case DatabaseUniqueViolationException():
+      case DBEuniqueViolation():
         return Response(
           statusCode: HttpStatus.conflict,
           body: e.message,
         );
-      case DatabaseBadCertificateException():
+      case DBEbadCertificate():
         return Response(
           statusCode: HttpStatus.internalServerError,
           body: e.message,
         );
-      case DatabaseSchemaException():
+      case DBEbadSchema():
         return Response(
           statusCode: HttpStatus.internalServerError,
           body: e.message,
         );
-      case DatabaseEmptyResultException():
+      case DBEemptyResult():
         return Response(
           statusCode: HttpStatus.notFound,
           body: e.message,
@@ -134,6 +134,8 @@ final class RoomHandler implements RoomHandlerProtocol {
           'items': items.map((item) => item.toMap()).toList(),
         },
       );
+    } on DatabaseException catch (e) {
+      return _handledDatabaseException(e);
     } on FormatException catch (e) {
       return Response(statusCode: HttpStatus.badRequest, body: e.message);
     } on Exception catch (e) {

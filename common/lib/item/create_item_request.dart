@@ -1,21 +1,14 @@
+import 'package:common/exceptions/request_exception.dart';
 import 'package:meta/meta.dart';
 
 @immutable
 final class CreateItemRequest {
-  const CreateItemRequest({
+  const CreateItemRequest._({
     required this.name,
     required this.price,
     required this.quantity,
     required this.roomCode,
   });
-
-  factory CreateItemRequest._fromMap(Map<String, dynamic> map) =>
-      CreateItemRequest(
-        name: map['name'] as String,
-        price: map['price'] as double,
-        quantity: map['quantity'] as int,
-        roomCode: map['roomCode'] as String,
-      );
 
   final String name;
   final double price;
@@ -29,15 +22,22 @@ final class CreateItemRequest {
         'roomCode': roomCode,
       };
 
-  static CreateItemRequest? validatedFromMap(Map<String, dynamic> map) =>
+  static CreateItemRequest validatedFromMap(Map<String, dynamic> map) =>
       switch (map) {
         {
-          'name': final String _,
-          'price': final double _,
-          'quantity': final int _,
-          'roomCode': final String _
+          'name': final String name,
+          'price': final double price,
+          'quantity': final int quantity,
+          'roomCode': final String roomCode,
         } =>
-          CreateItemRequest._fromMap(map),
-        _ => null,
+          CreateItemRequest._(
+            name: name,
+            price: price,
+            quantity: quantity,
+            roomCode: roomCode,
+          ),
+        _ => throw const BadRequestBodyException(
+            'Invalid map format for CreateItemRequest',
+          )
       };
 }
