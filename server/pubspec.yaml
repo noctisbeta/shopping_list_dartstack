@@ -4,7 +4,7 @@ version: 1.0.0+1
 publish_to: none
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.2.6 <4.0.0"
 
 assets:
   - .env
@@ -13,6 +13,7 @@ dependencies:
   common:
     path: ../common
   dart_frog: ^1.0.0
+  dart_frog_web_socket: ^1.0.0
   dotenv: ^4.2.0
   logger: ^2.0.2+1
   postgres: ^3.0.5

@@ -1,12 +1,12 @@
 import 'package:dart_frog/dart_frog.dart';
-import 'package:shopping_list_backend/room/implementations/room_service.dart';
-import 'package:shopping_list_backend/room/protocols/room_repository_protocol.dart';
-import 'package:shopping_list_backend/room/protocols/room_service_protocol.dart';
+import 'package:shopping_list_backend/room/implementations/postgres_room_repository.dart';
+import 'package:shopping_list_backend/room/interfaces/room_data_source.dart';
+import 'package:shopping_list_backend/room/interfaces/room_repository.dart';
 
-RoomServiceProtocol? _roomHandler;
+RoomRepository? _roomHandler;
 
-Middleware roomServiceProvider() => provider<Future<RoomServiceProtocol>>(
-      (ctx) async => _roomHandler ??= RoomService(
-        roomRepository: await ctx.read<Future<RoomRepositoryProtocol>>(),
+Middleware roomServiceProvider() => provider<Future<RoomRepository>>(
+      (ctx) async => _roomHandler ??= PostgresRoomRepository(
+        roomDataSource: await ctx.read<Future<RoomDataSource>>(),
       ),
     );

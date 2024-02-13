@@ -2,7 +2,7 @@ import 'package:common/exceptions/throws.dart';
 import 'package:shopping_list_backend/common/exceptions/database_exception.dart';
 
 final class RoomDB {
-  RoomDB._({
+  const RoomDB._({
     required this.id,
     required this.code,
   });

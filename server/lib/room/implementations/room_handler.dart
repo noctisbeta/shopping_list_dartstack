@@ -2,21 +2,20 @@ import 'dart:io';
 
 import 'package:common/exceptions/request_exception.dart';
 import 'package:common/logger/logger.dart';
-import 'package:common/room/create_room_request.dart';
-import 'package:common/room/create_room_response.dart';
-import 'package:common/room/get_room_response.dart';
+import 'package:common/rooms/create_room_request.dart';
+import 'package:common/rooms/create_room_response.dart';
+import 'package:common/rooms/get_room_response.dart';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:shopping_list_backend/common/exceptions/database_exception.dart';
 import 'package:shopping_list_backend/common/util/request_extension.dart';
-import 'package:shopping_list_backend/room/protocols/room_handler_protocol.dart';
-import 'package:shopping_list_backend/room/protocols/room_service_protocol.dart';
+import 'package:shopping_list_backend/room/interfaces/room_repository.dart';
 
-final class RoomHandler implements RoomHandlerProtocol {
+final class RoomHandler {
   const RoomHandler({
-    required RoomServiceProtocol roomService,
-  }) : _roomService = roomService;
+    required RoomRepository roomRepository,
+  }) : _roomService = roomRepository;
 
-  final RoomServiceProtocol _roomService;
+  final RoomRepository _roomService;
 
   Response _handledUnknownException(Exception e) {
     LOG.e('Unknown Exception: ${e.runtimeType}: $e');
@@ -72,7 +71,6 @@ final class RoomHandler implements RoomHandlerProtocol {
     }
   }
 
-  @override
   Future<Response> createRoom(RequestContext context) async {
     try {
       final request = context.request
@@ -84,7 +82,7 @@ final class RoomHandler implements RoomHandlerProtocol {
 
       final room = await _roomService.createRoom(createRoomRequest);
 
-      final createRoomResponse = CreateRoomResponse(room: room);
+      final createRoomResponse = CreateRoomResponse.validated(room: room);
 
       return Response.json(
         statusCode: HttpStatus.created,
@@ -101,7 +99,6 @@ final class RoomHandler implements RoomHandlerProtocol {
     }
   }
 
-  @override
   Future<Response> getRoomByCode(RequestContext context, String code) async {
     try {
       final room = await _roomService.getRoomByCode(code);
@@ -124,7 +121,6 @@ final class RoomHandler implements RoomHandlerProtocol {
     }
   }
 
-  @override
   Future<Response> getRoomItems(RequestContext context, String code) async {
     try {
       final items = await _roomService.getRoomItems(code);

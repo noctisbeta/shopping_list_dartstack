@@ -6,4 +6,4 @@ import 'package:shopping_list_backend/room/providers/room_service_provider.dart'
 Handler middleware(Handler handler) => handler
     .use(roomHandlerProvider())
     .use(roomServiceProvider())
-    .use(roomRepositoryProvider());
+    .use(roomDataSourceProvider());

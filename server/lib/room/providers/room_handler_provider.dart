@@ -1,12 +1,11 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:shopping_list_backend/room/implementations/room_handler.dart';
-import 'package:shopping_list_backend/room/protocols/room_handler_protocol.dart';
-import 'package:shopping_list_backend/room/protocols/room_service_protocol.dart';
+import 'package:shopping_list_backend/room/interfaces/room_repository.dart';
 
-RoomHandlerProtocol? _roomHandler;
+RoomHandler? _roomHandler;
 
-Middleware roomHandlerProvider() => provider<Future<RoomHandlerProtocol>>(
+Middleware roomHandlerProvider() => provider<Future<RoomHandler>>(
       (ctx) async => _roomHandler ??= RoomHandler(
-        roomService: await ctx.read<Future<RoomServiceProtocol>>(),
+        roomRepository: await ctx.read<Future<RoomRepository>>(),
       ),
     );
